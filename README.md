@@ -9,21 +9,21 @@ import Iter "mo:base/Iter";
 import Time "mo:base/Time";
 
 actor TaxCalculator {
-    // Veri Yapıları
+    
     type Income = {
-        salary: Float; // Maaş geliri
-        rental: Float; // Kira geliri
-        investment: Float; // Yatırım geliri
-        business: Float; // Ticari kazanç
-        other: Float; // Diğer gelirler
+        salary: Float; 
+        rental: Float; 
+        investment: Float; 
+        business: Float; 
+        other: Float; 
     };
 
     type Expense = {
-        education: Float; // Eğitim harcamaları
-        health: Float; // Sağlık harcamaları
-        housing: Float; // Konut harcamaları
-        donations: Float; // Bağışlar
-        other: Float; // Diğer giderler
+        education: Float; 
+        health: Float; 
+        housing: Float; 
+        donations: Float; 
+        other: Float; 
     };
 
     type TaxDeduction = {
@@ -43,7 +43,7 @@ actor TaxCalculator {
         recommendations: [Text];
     };
 
-    // Vergi dilimleri (2024 yılı için örnek)
+    
     private let taxBrackets = [
         { limit = 70000.0; rate = 0.15 },
         { limit = 150000.0; rate = 0.20 },
@@ -52,24 +52,20 @@ actor TaxCalculator {
         { limit = 880000.1; rate = 0.40 }
     ];
 
-    // Kullanıcı verileri için storage
     private var userIncomes = HashMap.HashMap<Text, Income>(0, Text.equal, Text.hash);
     private var userExpenses = HashMap.HashMap<Text, Expense>(0, Text.equal, Text.hash);
     private var userReports = HashMap.HashMap<Text, TaxReport>(0, Text.equal, Text.hash);
 
-    // Gelir bilgilerini kaydetme
     public func updateIncome(userId: Text, income: Income) : async Text {
         userIncomes.put(userId, income);
         return "Gelir bilgileri güncellendi";
     };
 
-    // Gider bilgilerini kaydetme
     public func updateExpense(userId: Text, expense: Expense) : async Text {
         userExpenses.put(userId, expense);
         return "Gider bilgileri güncellendi";
     };
 
-    // Toplam gelir hesaplama
     private func calculateTotalIncome(income: Income) : Float {
         return income.salary + 
                income.rental + 
@@ -78,11 +74,9 @@ actor TaxCalculator {
                income.other;
     };
 
-    // Vergi indirimlerini hesaplama
     private func calculateDeductions(expense: Expense) : [TaxDeduction] {
         var deductions = Buffer.Buffer<TaxDeduction>(0);
 
-        // Eğitim harcamaları indirimi
         if (expense.education > 0) {
             deductions.add({
                 type_ = "Eğitim";
@@ -91,7 +85,6 @@ actor TaxCalculator {
             });
         };
 
-        // Sağlık harcamaları indirimi
         if (expense.health > 0) {
             deductions.add({
                 type_ = "Sağlık";
@@ -100,7 +93,6 @@ actor TaxCalculator {
             });
         };
 
-        // Konut kredisi faiz indirimi
         if (expense.housing > 0) {
             deductions.add({
                 type_ = "Konut";
@@ -109,7 +101,6 @@ actor TaxCalculator {
             });
         };
 
-        // Bağış indirimi
         if (expense.donations > 0) {
             deductions.add({
                 type_ = "Bağış";
@@ -121,7 +112,6 @@ actor TaxCalculator {
         return Buffer.toArray(deductions);
     };
 
-    // Gelir vergisi hesaplama
     private func calculateIncomeTax(taxableIncome: Float) : Float {
         var remainingIncome = taxableIncome;
         var totalTax : Float = 0;
@@ -139,16 +129,13 @@ actor TaxCalculator {
         return totalTax;
     };
 
-    // Vergi optimizasyonu önerileri
     private func generateTaxRecommendations(income: Income, expense: Expense) : [Text] {
         var recommendations = Buffer.Buffer<Text>(0);
 
-        // Gelir bazlı öneriler
         if (income.investment > 0) {
             recommendations.add("Uzun vadeli yatırım araçlarını tercih ederek vergi avantajından yararlanabilirsiniz.");
         };
 
-        // Gider bazlı öneriler
         if (expense.education == 0) {
             recommendations.add("Eğitim harcamalarınızı belgelendirerek vergi indirimi alabilirsiniz.");
         };
@@ -163,8 +150,7 @@ actor TaxCalculator {
 
         return Buffer.toArray(recommendations);
     };
-
-    // Vergi raporu oluşturma
+    
     public func generateTaxReport(userId: Text, year: Nat) : async ?TaxReport {
         switch (userIncomes.get(userId), userExpenses.get(userId)) {
             case (?income, ?expense) {
@@ -204,12 +190,10 @@ actor TaxCalculator {
         };
     };
 
-    // KDV hesaplama (Oran bazlı)
     public func calculateVAT(amount: Float, rate: Float) : async Float {
         return amount * (rate / 100.0);
     };
 
-    // Vergi özeti alma
     public query func getTaxSummary(userId: Text) : async ?{
         lastReport: TaxReport;
         vatTotal: Float;
